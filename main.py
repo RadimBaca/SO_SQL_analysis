@@ -78,11 +78,11 @@ def process_large_file():
             if not sql_snippet:
                 continue
 
-            print(f'found SQL snippet: {sql_snippet}')
+            # print(f'found SQL snippet: {sql_snippet}')
 
             dao.insert_post(post_id, is_question, creation_date, decoded_body, tags_list, score, parent_id)
 
-            print(f'inserting post {post_id} with SQL snippet: {sql_snippet}')
+            # print(f'inserting post {post_id} with SQL snippet: {sql_snippet}')
             dao.insert_sql(post_id, sql_snippet)
 
 if __name__ == "__main__":
