@@ -30,7 +30,7 @@ while True:
         try:
             print(f"Processing id {id_sql} with text length {len(sql_text)}")
             # skip commands starting with COPY
-            if len(sql_text) <= SHORT_QUERY_LIMIT and not sql_text.strip().upper().startswith("COPY"):
+            if len(sql_text) <= SHORT_QUERY_LIMIT and not sql_text.strip().upper().contains("COPY"):
                 parsed = sqlglot.parse_one(sql_text, read='postgres', error_level='ignore')
                 if parsed:
                     duplicate_tables = has_duplicate_table_references(parsed)
@@ -46,6 +46,8 @@ while True:
 
         except Exception:
             can_parse = False
+            duplicate_tables = False
+            is_select = False
 
         dao.update_sql(id_sql, can_parse, is_select, duplicate_tables)
         # print(f"Processed id {id_sql}: can_parse={can_parse}, is_select={is_select}")
