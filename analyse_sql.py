@@ -16,7 +16,8 @@ load_dotenv()
 dao = get_dao()
 
 counter = 0
-while counter < 10:
+# while counter < 10:
+while True:
     counter += 1
     rows = dao.get_next_new_sql(10)
     if not rows:
