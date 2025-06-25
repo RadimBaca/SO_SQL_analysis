@@ -19,13 +19,13 @@ CODE_REGEX = re.compile(r'&lt;code&gt;.*?SELECT\s.*?FROM\s.*?&lt;/code&gt;', re.
 def decode_html(text):
     return text.replace('&lt;', '<').replace('&gt;', '>').replace('&#xA;', '\n')
 
-def extract_sql_snippet(body):
+def extract_sql_snippets(body):
     decoded = decode_html(body)
     matches = re.findall(r'<code>(.*?)</code>', decoded, re.DOTALL | re.IGNORECASE)
-    for m in matches:
-        if 'select' in m.lower() and 'from' in m.lower():
-            return m.strip()
-    return None
+    return [
+        m.strip() for m in matches
+        if 'select' in m.lower() and 'from' in m.lower()
+    ]
 
 def get_dao() -> BaseDAO:
     if DB_TYPE == "postgres":
@@ -74,16 +74,13 @@ def process_large_file():
                 continue
             # print(f'checking passed')
 
-            sql_snippet = extract_sql_snippet(decoded_body)
-            if not sql_snippet:
+            sql_snippets = extract_sql_snippets(decoded_body)
+            if not sql_snippets:
                 continue
 
-            # print(f'found SQL snippet: {sql_snippet}')
-
             dao.insert_post(post_id, is_question, creation_date, decoded_body, tags_list, score, parent_id)
-
-            # print(f'inserting post {post_id} with SQL snippet: {sql_snippet}')
-            dao.insert_sql(post_id, sql_snippet)
+            for snippet in sql_snippets:
+                dao.insert_sql(post_id, snippet)
 
 if __name__ == "__main__":
     process_large_file()
