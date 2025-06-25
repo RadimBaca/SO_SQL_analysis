@@ -15,6 +15,7 @@ def has_duplicate_table_references(parsed):
 load_dotenv()
 dao = get_dao()
 
+SHORT_QUERY_LIMIT = 1200
 counter = 0
 # while counter < 10:
 while True:
@@ -27,12 +28,17 @@ while True:
         can_parse = True
         is_select = False
         try:
-            parsed = sqlglot.parse_one(sql_text, read='postgres', error_level='ignore')
-            if parsed:
-                duplicate_tables = has_duplicate_table_references(parsed)
-                is_select = parsed.key.upper() == "SELECT"
+
+            if len(sql_text) <= SHORT_QUERY_LIMIT:
+                parsed = sqlglot.parse_one(sql_text, read='postgres', error_level='ignore')
+                if parsed:
+                    duplicate_tables = has_duplicate_table_references(parsed)
+                    is_select = parsed.key.upper() == "SELECT"
+                else:
+                    can_parse = False
             else:
-                can_parse = False
+                can_parse  = False
+
         except Exception:
             can_parse = False
 
