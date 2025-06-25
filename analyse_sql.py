@@ -28,16 +28,21 @@ while True:
         can_parse = True
         is_select = False
         try:
-
-            if len(sql_text) <= SHORT_QUERY_LIMIT:
+            print(f"Processing id {id_sql} with text length {len(sql_text)}")
+            # skip commands starting with COPY
+            if len(sql_text) <= SHORT_QUERY_LIMIT and not sql_text.strip().upper().startswith("COPY"):
                 parsed = sqlglot.parse_one(sql_text, read='postgres', error_level='ignore')
                 if parsed:
                     duplicate_tables = has_duplicate_table_references(parsed)
                     is_select = parsed.key.upper() == "SELECT"
                 else:
                     can_parse = False
+                    duplicate_tables = False
+                    is_select = False
             else:
                 can_parse  = False
+                duplicate_tables = False
+                is_select = False
 
         except Exception:
             can_parse = False
