@@ -30,6 +30,6 @@ cd SO_SQL_analysis
 python -m venv venv
 .\venv\Scripts\activate
 pip install -r requirements.txt
-python init.py  
+python main.py  
 ```
 
