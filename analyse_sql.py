@@ -37,4 +37,4 @@ while True:
             can_parse = False
 
         dao.update_sql(id_sql, can_parse, is_select, duplicate_tables)
-        print(f"Processed id {id_sql}: can_parse={can_parse}, is_select={is_select}")
+        # print(f"Processed id {id_sql}: can_parse={can_parse}, is_select={is_select}")
