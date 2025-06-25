@@ -24,3 +24,21 @@ class PostgresDAO(BaseDAO):
         with self.conn.cursor() as cur:
             cur.execute("SELECT 1 FROM post WHERE id_post = %s", (post_id,))
             return cur.fetchone() is not None
+
+    def get_next_new_sql(self, n):
+        with self.conn.cursor() as cur:
+            cur.execute("""
+                SELECT id_sql, sql_text FROM sql
+                WHERE can_be_parsed IS NULL
+                ORDER BY id_sql
+                LIMIT %s
+            """, (n,))
+            return cur.fetchall()
+
+    def update_sql(self, id_sql, can_be_parsed, is_select, duplicate_tables=None):
+        with self.conn.cursor() as cur:
+            cur.execute("""
+                UPDATE sql
+                SET can_be_parsed = %s, is_select = %s, has_duplicate_table = %s
+                WHERE id_sql = %s
+            """, (can_be_parsed, is_select, duplicate_tables, id_sql))

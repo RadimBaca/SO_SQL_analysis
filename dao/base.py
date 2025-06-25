@@ -12,3 +12,11 @@ class BaseDAO(ABC):
     @abstractmethod
     def post_exists(self, post_id):
         pass
+
+    @abstractmethod
+    def get_next_new_sql(self, n):
+        pass
+
+    @abstractmethod
+    def update_sql(self, id_sql, can_be_parsed, is_select, duplicate_tables):
+        pass

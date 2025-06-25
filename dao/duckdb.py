@@ -1,10 +1,14 @@
 import duckdb
+import os
+
 from .base import BaseDAO
 
 class DuckDBDAO(BaseDAO):
     def __init__(self, db_path):
+        is_new = not os.path.exists(db_path)
         self.conn = duckdb.connect(db_path)
-        self._init_schema()
+        if is_new:
+            self._init_schema()
 
     def _init_schema(self):
         self.conn.execute("""
@@ -25,7 +29,10 @@ class DuckDBDAO(BaseDAO):
             CREATE TABLE IF NOT EXISTS sql (
                 id_sql   INTEGER PRIMARY KEY default nextval('seq_personid'),
                 id_post  INTEGER NOT NULL,
-                sql_text TEXT NOT NULL
+                sql_text TEXT NOT NULL,
+                can_be_parsed boolean,
+                is_select boolean,
+                has_duplicate_table boolean                
             )
         """)
 
@@ -44,3 +51,18 @@ class DuckDBDAO(BaseDAO):
     def post_exists(self, post_id):
         result = self.conn.execute("SELECT 1 FROM post WHERE id_post = ?", (post_id,)).fetchone()
         return result is not None
+
+    def get_next_new_sql(self, n):
+        return self.conn.execute("""
+            SELECT id_sql, sql_text FROM sql
+            WHERE can_be_parsed IS NULL
+            ORDER BY id_sql
+            LIMIT ?
+        """, (n,)).fetchall()
+
+    def update_sql(self, id_sql, can_be_parsed, is_select, duplicate_tables):
+        self.conn.execute("""
+            UPDATE sql
+            SET can_be_parsed = ?, is_select = ?, has_duplicate_table = ?
+            WHERE id_sql = ?
+        """, (can_be_parsed, is_select, duplicate_tables, id_sql))
