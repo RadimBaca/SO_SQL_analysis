@@ -29,8 +29,8 @@ while True:
         is_select = False
         try:
             print(f"Processing id {id_sql} with text length {len(sql_text)}")
-            # skip commands starting with COPY
-            if len(sql_text) <= SHORT_QUERY_LIMIT and not sql_text.strip().upper().contains("COPY"):
+            # skip commands containing with COPY
+            if len(sql_text) <= SHORT_QUERY_LIMIT and "COPY" not in sql_text.upper():
                 parsed = sqlglot.parse_one(sql_text, read='postgres', error_level='ignore')
                 if parsed:
                     duplicate_tables = has_duplicate_table_references(parsed)
@@ -44,7 +44,12 @@ while True:
                 duplicate_tables = False
                 is_select = False
 
-        except Exception:
+
+        except Exception as e:
+            print(f"Error parsing SQL ID {id_sql}: {e}")
+            print(f"Error processing id {id_sql}: {sql_text[:50]}...")
+            # print error message
+
             can_parse = False
             duplicate_tables = False
             is_select = False
