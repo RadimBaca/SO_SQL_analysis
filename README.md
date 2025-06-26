@@ -31,5 +31,9 @@ python -m venv venv
 .\venv\Scripts\activate
 pip install -r requirements.txt
 python main.py  
+python analyse_sql.py
 ```
 
+`main.py` will populate your PostgreSQL database with relevant StackOverflow posts and SQL commands.
+
+`analyse_sql.py` will analyze the SQL commands and add information about them into the `sql` table.
